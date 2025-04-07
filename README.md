@@ -13,7 +13,12 @@ This course delves into the creative and technical dimensions of generative mach
 ### Repository Structure
 
 ```
-
+.
+├── Excercise2
+│   └── GenML_sand.ipynb
+├── Final_Project
+│   └── README.md
+└── README.md
 ```
 
 
