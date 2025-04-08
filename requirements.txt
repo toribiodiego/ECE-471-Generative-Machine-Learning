@@ -4,3 +4,4 @@ twilio
 gradio
 numpy
 Pillow
+python-dotenv
