@@ -1,0 +1,6 @@
+gradio_webrtc==0.0.28
+google-genai==0.3.0
+twilio
+gradio
+numpy
+Pillow
