@@ -3,6 +3,7 @@ import base64
 import os
 import time
 from io import BytesIO
+
 import gradio as gr
 import numpy as np
 from google import genai
@@ -17,27 +18,39 @@ from gradio_webrtc import (
 from PIL import Image
 from dotenv import load_dotenv
 
+config = {
+    "GEMINI_MODEL": "gemini-2.0-flash-exp",
+    "GEMINI_HTTP_OPTIONS": {"api_version": "v1alpha"},
+    "GEMINI_RESPONSE_MODALITIES": ["AUDIO"],
+    "INPUT_SAMPLE_RATE": 16000,
+    "EXPECTED_LAYOUT": "mono",
+    "OUTPUT_SAMPLE_RATE": 24000,
+    "OUTPUT_FRAME_SIZE": 480,
+    "WEBRTC_LABEL": "Video Chat",
+    "WEBRTC_MODALITY": "audio-video",
+    "WEBRTC_MODE": "send-receive",
+    "WEBRTC_ELEM_ID": "video-source",
+    "WEBRTC_ICON": "https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png",
+    "WEBRTC_PULSE_COLOR": "rgb(35, 157, 225)",
+    "WEBRTC_ICON_BUTTON_COLOR": "rgb(35, 157, 225)",
+    "VIDEO_SOURCE_MAX_WIDTH": "600px",
+    "VIDEO_SOURCE_MAX_HEIGHT": "600px",
+    "STREAM_TIME_LIMIT": 90,
+    "STREAM_CONCURRENCY_LIMIT": 2,
+}
 
-# Gemini API configuration
+
 def load_environment():
-    """Load environment variables from the .env file."""
     load_dotenv()
 
 
 def get_gemini_configuration(api_key: str):
-    """
-    Create a client and configuration for connecting to the Gemini API.
-
-    Modify this function if you need to adjust Gemini parameters later on.
-    """
-    client = genai.Client(api_key=api_key, http_options={"api_version": "v1alpha"})
-    config = {"response_modalities": ["AUDIO"]}
-    return client, config
+    client = genai.Client(api_key=api_key, http_options=config["GEMINI_HTTP_OPTIONS"])
+    gemini_config = {"response_modalities": config["GEMINI_RESPONSE_MODALITIES"]}
+    return client, gemini_config
 
 
-# data encoding helpers
 def encode_audio(data: np.ndarray) -> dict:
-    """Encode Audio data to send to the server."""
     return {
         "mime_type": "audio/pcm",
         "data": base64.b64encode(data.tobytes()).decode("UTF-8"),
@@ -45,25 +58,20 @@ def encode_audio(data: np.ndarray) -> dict:
 
 
 def encode_image(data: np.ndarray) -> dict:
-    """Encode image data to a base64 string."""
     with BytesIO() as output_bytes:
-        pil_image = Image.fromarray(data)
-        pil_image.save(output_bytes, "JPEG")
+        Image.fromarray(data).save(output_bytes, "JPEG")
         bytes_data = output_bytes.getvalue()
     base64_str = base64.b64encode(bytes_data).decode("utf-8")
     return {"mime_type": "image/jpeg", "data": base64_str}
 
 
-# gemini handler class
 class GeminiHandler(AsyncAudioVideoStreamHandler):
-    def __init__(
-        self, expected_layout="mono", output_sample_rate=24000, output_frame_size=480
-    ) -> None:
+    def __init__(self) -> None:
         super().__init__(
-            expected_layout,
-            output_sample_rate,
-            output_frame_size,
-            input_sample_rate=16000,
+            config["EXPECTED_LAYOUT"],
+            config["OUTPUT_SAMPLE_RATE"],
+            config["OUTPUT_FRAME_SIZE"],
+            input_sample_rate=config["INPUT_SAMPLE_RATE"],
         )
         self.audio_queue = asyncio.Queue()
         self.video_queue = asyncio.Queue()
@@ -72,35 +80,28 @@ class GeminiHandler(AsyncAudioVideoStreamHandler):
         self.last_frame_time = 0
 
     def copy(self) -> "GeminiHandler":
-        """Return a new instance of GeminiHandler with the same configuration."""
-        return GeminiHandler(
-            expected_layout=self.expected_layout,
-            output_sample_rate=self.output_sample_rate,
-            output_frame_size=self.output_frame_size,
-        )
+        return GeminiHandler()
 
     async def video_receive(self, frame: np.ndarray):
-        """Receive video frame, send encoded images to Gemini at most once a second."""
         if self.session:
             if time.time() - self.last_frame_time > 1:
                 self.last_frame_time = time.time()
                 await self.session.send(encode_image(frame))
-                if self.latest_args[2] is not None:
-                    await self.session.send(encode_image(self.latest_args[2]))
+                if len(self.latest_args) > 1 and self.latest_args[1] is not None:
+                    await self.session.send(encode_image(self.latest_args[1]))
         self.video_queue.put_nowait(frame)
 
     async def video_emit(self) -> VideoEmitType:
         return await self.video_queue.get()
 
-    async def connect(self, api_key: str):
-        """Establish a connection to the Gemini API using the provided API key."""
+    async def connect(self):
         if self.session is None:
-            client, config = get_gemini_configuration(api_key)
+            key = os.getenv("GEMINI_API_KEY")
+            client, gemini_config = get_gemini_configuration(key)
             async with client.aio.live.connect(
-                model="gemini-2.0-flash-exp", config=config
+                model=config["GEMINI_MODEL"], config=gemini_config
             ) as session:
                 self.session = session
-                # Start receiving audio responses asynchronously.
                 asyncio.create_task(self.receive_audio())
                 await self.quit.wait()
 
@@ -116,10 +117,8 @@ class GeminiHandler(AsyncAudioVideoStreamHandler):
             self.audio_queue.put_nowait(audio_response)
 
     async def receive(self, frame: tuple[int, np.ndarray]) -> None:
-        """Process incoming audio frames."""
         _, array = frame
-        array = array.squeeze()
-        audio_message = encode_audio(array)
+        audio_message = encode_audio(array.squeeze())
         if self.session:
             await self.session.send(audio_message)
 
@@ -127,8 +126,7 @@ class GeminiHandler(AsyncAudioVideoStreamHandler):
         if not self.args_set.is_set():
             await self.wait_for_args()
         if self.session is None:
-            # Start connecting if not already done.
-            asyncio.create_task(self.connect(self.latest_args[1]))
+            asyncio.create_task(self.connect())
         array = await self.audio_queue.get()
         return (self.output_sample_rate, array)
 
@@ -139,33 +137,27 @@ class GeminiHandler(AsyncAudioVideoStreamHandler):
         self.quit.clear()
 
 
-# UI building functions
 def build_webrtc_component() -> WebRTC:
-    """Build and return the WebRTC component with the appropriate configuration."""
     return WebRTC(
-        label="Video Chat",
-        modality="audio-video",
-        mode="send-receive",
-        elem_id="video-source",
+        label=config["WEBRTC_LABEL"],
+        modality=config["WEBRTC_MODALITY"],
+        mode=config["WEBRTC_MODE"],
+        elem_id=config["WEBRTC_ELEM_ID"],
         rtc_configuration=get_twilio_turn_credentials(),
-        icon="https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png",
-        pulse_color="rgb(35, 157, 225)",
-        icon_button_color="rgb(35, 157, 225)",
+        icon=config["WEBRTC_ICON"],
+        pulse_color=config["WEBRTC_PULSE_COLOR"],
+        icon_button_color=config["WEBRTC_ICON_BUTTON_COLOR"],
     )
 
 
 def create_ui() -> gr.Blocks:
-    """
-    Create the Gradio Blocks UI.
-
-    This function separates all UI components from the business logic.
-    """
-    css = """
-    #video-source {max-width: 600px !important; max-height: 600px !important;}
-    """
+    css = (
+        f"#video-source {{max-width: {config['VIDEO_SOURCE_MAX_WIDTH']} !important; "
+        f"max-height: {config['VIDEO_SOURCE_MAX_HEIGHT']} !important;}}"
+    )
     demo = gr.Blocks(css=css)
-
     with demo:
+        # Directly setting the HTML info inline
         gr.HTML(
             """
             <div style='display: flex; align-items: center; justify-content: center; gap: 20px'>
@@ -182,39 +174,23 @@ def create_ui() -> gr.Blocks:
             </div>
             """
         )
-        with gr.Row() as api_key_row:
-            # Pre-populate using GEMINI_API_KEY from environment variables.
-            api_key = gr.Textbox(
-                label="API Key",
-                type="password",
-                placeholder="Enter your API Key",
-                value=os.getenv("GEMINI_API_KEY"),
-            )
-        with gr.Row(visible=False) as row:
+        with gr.Row() as row:
             with gr.Column():
                 webrtc = build_webrtc_component()
             with gr.Column():
                 image_input = gr.Image(
                     label="Image", type="numpy", sources=["upload", "clipboard"]
                 )
-            # Setup the stream using the GeminiHandler.
             webrtc.stream(
                 GeminiHandler(),
-                inputs=[webrtc, api_key, image_input],
+                inputs=[webrtc, image_input],
                 outputs=[webrtc],
-                time_limit=90,
-                concurrency_limit=2,
-            )
-            # toggle visibility of the API key field and UI row on submission.
-            api_key.submit(
-                lambda: (gr.update(visible=False), gr.update(visible=True)),
-                None,
-                [api_key_row, row],
+                time_limit=config["STREAM_TIME_LIMIT"],
+                concurrency_limit=config["STREAM_CONCURRENCY_LIMIT"],
             )
     return demo
 
 
-# main entry point
 def main():
     load_environment()
     demo = create_ui()
