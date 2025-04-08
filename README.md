@@ -18,7 +18,9 @@ This course delves into the creative and technical dimensions of generative mach
 │   └── GenML_sand.ipynb
 ├── Final_Project
 │   └── README.md
-└── README.md
+├── README.md
+├── app.py
+└── requirements.txt
 ```
 
 
