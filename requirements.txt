@@ -5,3 +5,5 @@ gradio
 numpy
 Pillow
 python-dotenv
+pyaudio
+opencv-python
