@@ -8,35 +8,69 @@ import threading
 import gradio as gr
 import numpy as np
 from google import genai
+from google.genai import types
 from PIL import Image
 from dotenv import load_dotenv
 import pyaudio
 import cv2
 
-# --- Global configuration dictionary ---
+# --- Global Configuration ---
 config = {
     "GEMINI_MODEL": "gemini-2.0-flash-exp",
     "GEMINI_HTTP_OPTIONS": {"api_version": "v1alpha"},
+    # Use uppercase "AUDIO" as required by the LiveConnectConfig validator.
     "GEMINI_RESPONSE_MODALITIES": ["AUDIO"],
+    "SYSTEM_INSTRUCTION": (
+        "I would like you to behave like an online troll to anyone you speak with, "
+        "including making fun of the person visible in the video stream."
+    ),
+    "VOICE_NAME": "Puck",
     "INPUT_SAMPLE_RATE": 16000,
     "OUTPUT_SAMPLE_RATE": 24000,
     "CHUNK_SIZE": 1024,
     "WEB_UI_TITLE": "Gemini Audio/Video Demo",
     "VIDEO_CAPTURE_INTERVAL": 0.5,  # seconds between capturing frames
+    "AUDIO_FORMAT": pyaudio.paInt16,
+    "AUDIO_CHANNELS": 1,
+    "BLANK_IMAGE_DIMS": (480, 640, 3),
+    "THUMBNAIL_MAX_SIZE": (1024, 1024),
 }
 
-# --- Low-level Audio Constants ---
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
 pya = pyaudio.PyAudio()
 
-def load_environment():
+# --- Environment and Gemini Configuration ---
+def load_environment() -> None:
     load_dotenv()
 
 def get_gemini_configuration(api_key: str):
+    """
+    Creates a Gemini client and configuration object.
+    The configuration includes system instructions and a speech configuration.
+    """
     client = genai.Client(api_key=api_key, http_options=config["GEMINI_HTTP_OPTIONS"])
-    gemini_config = {"response_modalities": config["GEMINI_RESPONSE_MODALITIES"]}
+    gemini_config = types.LiveConnectConfig(
+        response_modalities=config["GEMINI_RESPONSE_MODALITIES"],
+        # Set the system instruction in the configuration.
+        system_instruction=types.Content(
+            parts=[types.Part.from_text(text=config["SYSTEM_INSTRUCTION"])],
+            role="user",
+        ),
+        # Optional speech configuration.
+        speech_config=types.SpeechConfig(
+            voice_config=types.VoiceConfig(
+                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=config["VOICE_NAME"])
+            )
+        ),
+    )
     return client, gemini_config
+
+# --- Encoding Helpers ---
+def encode_text(text: str) -> dict:
+    """Encodes text as base64 with its MIME type."""
+    return {
+        "mime_type": "text/plain",
+        "data": base64.b64encode(text.encode("utf-8")).decode("utf-8"),
+    }
 
 def encode_audio(data: bytes) -> dict:
     return {
@@ -45,7 +79,6 @@ def encode_audio(data: bytes) -> dict:
     }
 
 def encode_image_from_array(arr: np.ndarray) -> dict:
-    # Encodes a numpy image array as JPEG.
     with BytesIO() as output_bytes:
         Image.fromarray(arr).save(output_bytes, "JPEG")
         bytes_data = output_bytes.getvalue()
@@ -54,17 +87,18 @@ def encode_image_from_array(arr: np.ndarray) -> dict:
         "data": base64.b64encode(bytes_data).decode("utf-8"),
     }
 
-def get_blank_image():
-    # Returns a simple blank (black) image.
-    blank_arr = np.zeros((480, 640, 3), dtype=np.uint8)
+def get_blank_image() -> Image.Image:
+    h, w, _ = config["BLANK_IMAGE_DIMS"]
+    blank_arr = np.zeros((h, w, 3), dtype=np.uint8)
     return Image.fromarray(blank_arr)
 
+# --- Media Processing Class ---
 class MediaLoop:
     """
-    Captures and processes both audio and video.
-    Audio from the microphone is streamed to Gemini and its response is played back.
-    Video is captured continuously from the computer’s camera (via OpenCV), sent to Gemini (if active),
-    and stored locally for display.
+    Captures and processes audio and video. Sends audio to Gemini,
+    receives responses for playback, and streams video.
+    
+    Gemini's system instructions are now embedded in the configuration.
     """
     def __init__(self):
         self.audio_in_queue = asyncio.Queue()
@@ -72,14 +106,14 @@ class MediaLoop:
         self.quit = asyncio.Event()
         self.audio_stream_in = None
         self.audio_stream_out = None
-        self.latest_video_frame = None  # Latest captured video frame (PIL Image)
+        self.latest_video_frame = None
 
     async def listen_audio(self):
         mic_info = pya.get_default_input_device_info()
         self.audio_stream_in = await asyncio.to_thread(
             pya.open,
-            format=FORMAT,
-            channels=CHANNELS,
+            format=config["AUDIO_FORMAT"],
+            channels=config["AUDIO_CHANNELS"],
             rate=config["INPUT_SAMPLE_RATE"],
             input=True,
             input_device_index=mic_info["index"],
@@ -87,21 +121,17 @@ class MediaLoop:
         )
         kwargs = {"exception_on_overflow": False}
         while not self.quit.is_set():
-            data = await asyncio.to_thread(
-                self.audio_stream_in.read, config["CHUNK_SIZE"], **kwargs
-            )
+            data = await asyncio.to_thread(self.audio_stream_in.read, config["CHUNK_SIZE"], **kwargs)
             if self.session:
                 await self.session.send({"data": data, "mime_type": "audio/pcm"})
             await asyncio.sleep(0)
 
     async def receive_audio(self):
-        # Receives Gemini's audio responses and enqueues them for playback.
         while not self.quit.is_set():
             turn = self.session.receive()
             async for response in turn:
-                if data := response.data:
-                    await self.audio_in_queue.put(data)
-            # Clear any leftover audio.
+                if response.data:
+                    await self.audio_in_queue.put(response.data)
             while not self.audio_in_queue.empty():
                 try:
                     self.audio_in_queue.get_nowait()
@@ -111,8 +141,8 @@ class MediaLoop:
     async def play_audio(self):
         self.audio_stream_out = await asyncio.to_thread(
             pya.open,
-            format=FORMAT,
-            channels=CHANNELS,
+            format=config["AUDIO_FORMAT"],
+            channels=config["AUDIO_CHANNELS"],
             rate=config["OUTPUT_SAMPLE_RATE"],
             output=True,
         )
@@ -135,11 +165,9 @@ class MediaLoop:
         ret, frame = cap.read()
         if not ret:
             return None
-        # Convert from BGR to RGB for correct color display.
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(frame_rgb)
-        # Optionally, resize or process the image here as needed.
-        img.thumbnail((1024, 1024))
+        img.thumbnail(config["THUMBNAIL_MAX_SIZE"])
         return img
 
     async def capture_video(self):
@@ -159,6 +187,11 @@ class MediaLoop:
         cap.release()
 
     async def run(self):
+        """
+        Establishes the Gemini session using the updated configuration that
+        includes system instructions and speech settings, and concurrently
+        runs audio and video tasks.
+        """
         key = os.getenv("GEMINI_API_KEY")
         client, gemini_config = get_gemini_configuration(key)
         try:
@@ -175,16 +208,15 @@ class MediaLoop:
     def shutdown(self):
         self.quit.set()
 
-# Global MediaLoop instance and thread placeholders.
+# --- Media Session Control ---
 media_loop = None
 media_loop_thread = None
 
-def run_media_loop(loop_instance):
+def run_media_loop(loop_instance: MediaLoop) -> None:
     asyncio.run(loop_instance.run())
 
-def start_media_session():
+def start_media_session() -> str:
     global media_loop, media_loop_thread
-    # Reinitialize a new session if none is running or if the previous session has been stopped.
     if media_loop is None or media_loop.quit.is_set():
         media_loop = MediaLoop()
         media_loop_thread = threading.Thread(target=run_media_loop, args=(media_loop,), daemon=True)
@@ -193,7 +225,7 @@ def start_media_session():
     else:
         return "Media session already running."
 
-def stop_media_session():
+def stop_media_session() -> str:
     global media_loop, media_loop_thread
     if media_loop is not None:
         media_loop.shutdown()
@@ -204,33 +236,27 @@ def stop_media_session():
         return "No active session."
 
 def video_stream():
-    """
-    Generator function that continuously yields the latest video frame.
-    The frame is converted to a NumPy array before being sent so that the Gradio Image component
-    displays it correctly. If no frame is available, a blank image is returned.
-    """
     while True:
         if media_loop is not None and media_loop.latest_video_frame is not None:
-            # Convert PIL image to NumPy array
             frame = np.array(media_loop.latest_video_frame)
         else:
             frame = np.array(get_blank_image())
         yield frame
         time.sleep(config["VIDEO_CAPTURE_INTERVAL"])
 
+# --- Gradio UI ---
 def create_ui():
     with gr.Blocks(title=config["WEB_UI_TITLE"]) as demo:
         gr.Markdown(
             "## Gemini Audio/Video Demo\n"
             "Click **Start** to begin a session that captures your microphone audio and camera video. "
             "Gemini will process your audio and respond, and your live video feed will be displayed below. "
-            "Click **Stop** to end the session and clear its memory so that a new session will start on the next Start."
+            "Click **Stop** to end the session."
         )
         with gr.Row():
             start_btn = gr.Button("Start")
             stop_btn = gr.Button("Stop")
         status = gr.Textbox(label="Status", interactive=False)
-        # The gr.Image component streams the live video feed.
         video_feed = gr.Image(label="Live Video Feed", streaming=True, interactive=True)
         start_btn.click(fn=start_media_session, inputs=[], outputs=[status])
         stop_btn.click(fn=stop_media_session, inputs=[], outputs=[status])
