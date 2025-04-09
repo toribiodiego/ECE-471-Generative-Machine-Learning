@@ -18,11 +18,10 @@ import cv2
 config = {
     "GEMINI_MODEL": "gemini-2.0-flash-exp",
     "GEMINI_HTTP_OPTIONS": {"api_version": "v1alpha"},
+    # Use uppercase "AUDIO" as required by the LiveConnectConfig validator.
     "GEMINI_RESPONSE_MODALITIES": ["AUDIO"],
-    "SYSTEM_INSTRUCTION": (
-        "I would like you to behave like an online troll to anyone you speak with, "
-        "including making fun of the person visible in the video stream."
-    ),
+    # The system instructions will be loaded solely from the instructions.txt file.
+    "INSTRUCTIONS_FILE": "instructions.txt",
     "VOICE_NAME": "Leda",
     "INPUT_SAMPLE_RATE": 16000,
     "OUTPUT_SAMPLE_RATE": 24000,
@@ -41,20 +40,32 @@ pya = pyaudio.PyAudio()
 def load_environment() -> None:
     load_dotenv()
 
+def load_system_instruction() -> str:
+    """
+    Loads system instructions solely from the file specified in config ('instructions.txt').
+    Raises a FileNotFoundError if the file is missing or empty.
+    """
+    filename = config.get("INSTRUCTIONS_FILE", "instructions.txt")
+    if os.path.exists(filename) and os.path.isfile(filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            instruction = f.read().strip()
+            if instruction:
+                return instruction
+    raise FileNotFoundError(f"System instructions not found or empty in '{filename}'.")
+
 def get_gemini_configuration(api_key: str):
     """
     Creates a Gemini client and configuration object.
-    The configuration includes system instructions and a speech configuration.
+    Loads system instructions exclusively from 'instructions.txt' and uses the voice setting from the config.
     """
     client = genai.Client(api_key=api_key, http_options=config["GEMINI_HTTP_OPTIONS"])
+    system_instruction_text = load_system_instruction()
     gemini_config = types.LiveConnectConfig(
         response_modalities=config["GEMINI_RESPONSE_MODALITIES"],
-        # Set the system instruction in the configuration.
         system_instruction=types.Content(
-            parts=[types.Part.from_text(text=config["SYSTEM_INSTRUCTION"])],
+            parts=[types.Part.from_text(text=system_instruction_text)],
             role="user",
         ),
-        # Optional speech configuration using voice "Leda".
         speech_config=types.SpeechConfig(
             voice_config=types.VoiceConfig(
                 prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=config["VOICE_NAME"])
@@ -97,7 +108,8 @@ class MediaLoop:
     Captures and processes audio and video. Sends audio to Gemini,
     receives responses for playback, and streams video.
     
-    Gemini's system instructions (and voice configuration) are embedded in the configuration.
+    Gemini's configuration includes system instructions (loaded from instructions.txt)
+    and the specified voice (Leda) for speech synthesis.
     """
     def __init__(self):
         self.audio_in_queue = asyncio.Queue()
@@ -187,9 +199,9 @@ class MediaLoop:
 
     async def run(self):
         """
-        Establishes the Gemini session using the updated configuration that
-        includes system instructions and speech settings (with voice Leda),
-        and concurrently runs audio and video tasks.
+        Establishes the Gemini session using the configuration that
+        includes system instructions from the 'instructions.txt' file and
+        speech settings (with voice Leda), then runs audio and video tasks concurrently.
         """
         key = os.getenv("GEMINI_API_KEY")
         client, gemini_config = get_gemini_configuration(key)
