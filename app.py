@@ -18,13 +18,12 @@ import cv2
 config = {
     "GEMINI_MODEL": "gemini-2.0-flash-exp",
     "GEMINI_HTTP_OPTIONS": {"api_version": "v1alpha"},
-    # Use uppercase "AUDIO" as required by the LiveConnectConfig validator.
     "GEMINI_RESPONSE_MODALITIES": ["AUDIO"],
     "SYSTEM_INSTRUCTION": (
         "I would like you to behave like an online troll to anyone you speak with, "
         "including making fun of the person visible in the video stream."
     ),
-    "VOICE_NAME": "Puck",
+    "VOICE_NAME": "Leda",
     "INPUT_SAMPLE_RATE": 16000,
     "OUTPUT_SAMPLE_RATE": 24000,
     "CHUNK_SIZE": 1024,
@@ -55,7 +54,7 @@ def get_gemini_configuration(api_key: str):
             parts=[types.Part.from_text(text=config["SYSTEM_INSTRUCTION"])],
             role="user",
         ),
-        # Optional speech configuration.
+        # Optional speech configuration using voice "Leda".
         speech_config=types.SpeechConfig(
             voice_config=types.VoiceConfig(
                 prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=config["VOICE_NAME"])
@@ -98,7 +97,7 @@ class MediaLoop:
     Captures and processes audio and video. Sends audio to Gemini,
     receives responses for playback, and streams video.
     
-    Gemini's system instructions are now embedded in the configuration.
+    Gemini's system instructions (and voice configuration) are embedded in the configuration.
     """
     def __init__(self):
         self.audio_in_queue = asyncio.Queue()
@@ -189,8 +188,8 @@ class MediaLoop:
     async def run(self):
         """
         Establishes the Gemini session using the updated configuration that
-        includes system instructions and speech settings, and concurrently
-        runs audio and video tasks.
+        includes system instructions and speech settings (with voice Leda),
+        and concurrently runs audio and video tasks.
         """
         key = os.getenv("GEMINI_API_KEY")
         client, gemini_config = get_gemini_configuration(key)
