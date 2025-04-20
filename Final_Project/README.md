@@ -1,4 +1,6 @@
-## Final Project Demo
+> This directory contains the final project for **Generative Machine Learning (ECE‑471)**, an Interactive Multimodal (Audio‑Video) Agent that captures live audio and video via the Gemini Live API for real‑time speech synthesis.
+
+## Interactive Multimodal (Audio-Video) Agent
 
 This document guides you through setting up and running the Generative Machine Learning live audio/video demo, and provides a high-level overview of its architecture and prompt engineering.
 
