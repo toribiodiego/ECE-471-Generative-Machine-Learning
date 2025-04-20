@@ -38,7 +38,7 @@ Before running the demo, we prepare an isolated environment and configure your A
    Run the provided script to do all of the above in one step:
    ```bash
    chmod +x setup.sh      
-   ./setup.sh             
+   source ./setup.sh             
    ```
    After it finishes, open the newly created `.env` and fill in:
    ```ini
@@ -56,7 +56,7 @@ Once setup completes, your environment is ready to launch the demo.
 
 Start the application:
 ```bash
-python3 app.py
+python app.py
 ```
 
 In your browser, navigate to:
@@ -98,30 +98,8 @@ Click **Start** to begin the live audio/video session, and **Stop** to end it.
 <br>
 
 
-### Repository Structure
-
-```bash
-.
-├── Excercise2/               # Jupyter notebook sandbox for experiments
-│   └── GenML_sand.ipynb
-├── Final_Project/            # Live demo application
-│   └── README.md             # ← This file
-├── README.md                 # Project overview
-├── app.py                    # Main demo application
-├── instructions.txt          # System prompt for Gemini
-└── requirements.txt          # Python dependencies
-```
-
-<br>
-<br>
-
 ### Troubleshooting
 
 - **Camera issues**: ensure no other application is using the webcam.  
 - **Microphone errors**: check your default input device and permissions.  
 - **API errors**: confirm keys in `.env` are correct and valid.
-
-
-
-Happy experimenting!
-
