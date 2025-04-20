@@ -20,6 +20,7 @@ This course delves into the creative and technical dimensions of generative mach
 │   └── README.md
 ├── README.md
 ├── app.py
+├── instructions.txt
 └── requirements.txt
 ```
 
