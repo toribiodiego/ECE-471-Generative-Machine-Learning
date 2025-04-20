@@ -2,7 +2,7 @@
 # Automates: virtual environment creation, dependency installation, and .env scaffolding
 
 echo "Creating Python virtual environment..."
-python3 -m venv venv
+python3.12 -m venv venv
 
 echo "Activating virtual environment..."
 source venv/bin/activate
