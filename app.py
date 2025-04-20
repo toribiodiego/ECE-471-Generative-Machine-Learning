@@ -25,7 +25,7 @@ config = {
     "VOICE_NAME": "Leda",
     "INPUT_SAMPLE_RATE": 16000,
     "OUTPUT_SAMPLE_RATE": 24000,
-    "CHUNK_SIZE": 1024,
+    "CHUNK_SIZE": 512,                          # need to add dynamic chunk size setting: ask for microphone setting
     "WEB_UI_TITLE": "Gemini Audio/Video Demo",
     "VIDEO_CAPTURE_INTERVAL": 0.5,  # seconds between capturing frames
     "AUDIO_FORMAT": pyaudio.paInt16,
