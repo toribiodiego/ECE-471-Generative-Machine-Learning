@@ -1,4 +1,4 @@
-# Final Project Demo
+## Final Project Demo
 
 This document guides you through setting up and running the Generative Machine Learning live audio/video demo, and provides a high-level overview of its architecture and prompt engineering.
 
@@ -13,10 +13,13 @@ cd ECE-471-Generative-Machine-Learning/Final_Project
 ```
 
 By cloning, you’ll pull down:
-- **`app.py`**: main application entrypoint
-- **`instructions.txt`**: system prompt defining agent behavior
-- **`requirements.txt`**: lists all Python dependencies with pinned versions
-- **`setup.sh`**: helper script to scaffold your environment
+- **`app.py`**: main application entrypoint  
+- **`config.yaml`**: development‑friendly overrides (e.g. mic type, model, instructions file, voice)  
+- **`media.yaml`**: detailed runtime parameters (e.g. sample rates, video intervals)  
+- **`instructions.txt`**: system prompt defining agent behavior  
+- **`requirements.txt`**: lists all Python dependencies with pinned versions  
+- **`setup.sh`**: helper script to scaffold your environment  
+
 
 <br>
 
@@ -26,28 +29,27 @@ By cloning, you’ll pull down:
 Before running the demo, we prepare an isolated environment and configure your API credentials:
 
 1. **Virtual Environment (`venv`)**  
-   - A virtual environment keeps this project’s Python packages separate from your global installation, avoiding version conflicts and ensuring reproducibility.
+   - Keeps this project’s Python packages separate from your global installation, avoiding version conflicts.
 
 2. **Dependencies (`requirements.txt`)**  
-   - This file specifies exactly which library versions the demo needs (e.g., `gradio`, `pyaudio`, Google Gemini). Installing from it guarantees everyone runs the same code.
+   - Specifies exactly which library versions the demo needs (e.g., `gradio`, `pyaudio`, `PyYAML`, Google Gemini).
 
 3. **Credentials File (`.env`)**  
-   - We store sensitive keys (Twilio and Gemini) in a `.env` file that is loaded at runtime but not committed to Git. This keeps your secrets out of version control.
+   - Stores sensitive keys (Twilio and Gemini) in a `.env` file that is loaded at runtime but not committed to Git.
 
 4. **Automated Setup Script**  
    Run the provided script to do all of the above in one step:
    ```bash
-   chmod +x setup.sh      
-   source ./setup.sh             
+   chmod +x setup.sh
+   source ./setup.sh
    ```
-   After it finishes, open the newly created `.env` and fill in:
+   Afterwards, open the newly created `.env` and fill in:
    ```ini
    TWILIO_ACCOUNT_SID=your_twilio_account_sid
    TWILIO_AUTH_TOKEN=your_twilio_auth_token
    GEMINI_API_KEY=your_gemini_api_key
    ```
 
-Once setup completes, your environment is ready to launch the demo.
 
 <br>
 
@@ -92,8 +94,8 @@ Click **Start** to begin the live audio/video session, and **Stop** to end it.
 ### Prompt Engineering
 
 - The agent’s behavior is driven by **system instructions** in `instructions.txt`.  
-- Edit `instructions.txt` to customize how the model interacts with users.  
-- To change the underlying model, update `GEMINI_MODEL` at the top of `app.py`.
+- To change how the model interacts, edit **only** `instructions.txt`.  
+- To switch models or voices, update **`config.yaml`** (no code changes required).
 
 <br>
 
@@ -101,5 +103,5 @@ Click **Start** to begin the live audio/video session, and **Stop** to end it.
 ### Troubleshooting
 
 - **Camera issues**: ensure no other application is using the webcam.  
-- **Microphone errors**: check your default input device and permissions.  
-- **API errors**: confirm keys in `.env` are correct and valid.
+- **Microphone errors**: verify your `MIC_TYPE` in `config.yaml` matches your hardware.  
+- **API errors**: confirm keys in `.env` are correct and valid.  
