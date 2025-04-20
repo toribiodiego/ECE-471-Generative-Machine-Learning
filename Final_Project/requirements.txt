@@ -7,3 +7,4 @@ Pillow
 python-dotenv
 pyaudio
 opencv-python
+pyyaml

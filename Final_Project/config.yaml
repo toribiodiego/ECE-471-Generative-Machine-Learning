@@ -1,0 +1,4 @@
+MIC_TYPE: "computer_mic"
+GEMINI_MODEL: "gemini-2.0-flash-exp"
+INSTRUCTIONS_FILE: "instructions.txt"
+VOICE_NAME: "Leda"

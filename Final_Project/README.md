@@ -26,13 +26,13 @@ By cloning, you’ll pull down:
 Before running the demo, we prepare an isolated environment and configure your API credentials:
 
 1. **Virtual Environment (`venv`)**  
-   A virtual environment keeps this project’s Python packages separate from your global installation, avoiding version conflicts and ensuring reproducibility.
+   - A virtual environment keeps this project’s Python packages separate from your global installation, avoiding version conflicts and ensuring reproducibility.
 
 2. **Dependencies (`requirements.txt`)**  
-   This file specifies exactly which library versions the demo needs (e.g., `gradio`, `pyaudio`, Google Gemini). Installing from it guarantees everyone runs the same code.
+   - This file specifies exactly which library versions the demo needs (e.g., `gradio`, `pyaudio`, Google Gemini). Installing from it guarantees everyone runs the same code.
 
 3. **Credentials File (`.env`)**  
-   We store sensitive keys (Twilio and Gemini) in a `.env` file that is loaded at runtime but not committed to Git. This keeps your secrets out of version control.
+   - We store sensitive keys (Twilio and Gemini) in a `.env` file that is loaded at runtime but not committed to Git. This keeps your secrets out of version control.
 
 4. **Automated Setup Script**  
    Run the provided script to do all of the above in one step:
