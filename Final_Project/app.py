@@ -64,6 +64,10 @@ def get_gemini_configuration(api_key: str):
                 prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=config["VOICE_NAME"])
             )
         ),
+        # Enable context window compression with default sliding window parameters
+        context_window_compression=types.ContextWindowCompressionConfig(
+            sliding_window=types.SlidingWindow(),
+        ),
     )
     return client, live_cfg
 

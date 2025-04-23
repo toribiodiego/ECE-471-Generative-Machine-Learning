@@ -1,4 +1,4 @@
 MIC_TYPE: "dynamic_mic"
-GEMINI_MODEL: "gemini-2.0-flash-exp"
+GEMINI_MODEL: "gemini-2.0-flash-live-001"
 INSTRUCTIONS_FILE: "instructions.txt"
 VOICE_NAME: "Leda"
