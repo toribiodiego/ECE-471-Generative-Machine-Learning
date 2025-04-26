@@ -2,25 +2,21 @@
 
 ## Interactive Multimodal Agent (Audio-Video)
 
-All source code, configuration files, and assets needed to run *Agnes*—our live, webcam-driven multimodal troll—are collected here. You’ll find the Python application (`app.py`), YAML configs for audio/video and model settings, Gradio UI scaffolding, the insult-laden system prompt, and exhibition artifacts such as screenshots and posters.
+Everything required to run *Agnes*—source, configs, and exhibition assets—lives in this folder. Core pieces include the streaming loop (`app.py`), YAML configuration files, a Gradio UI scaffold, the insult-packed system prompt, and poster/screenshot artifacts.
 
 ### Objective  
-Create an always-on demonstrator that streams real-time video frames and microphone audio to Gemini 2.0, then plays back the model’s synthesized speech so visitors can banter with a sarcastic “AI face.” The project explores low-latency media pipelines, prompt engineering for personality control, and lightweight front-end delivery via Gradio—all while keeping hardware requirements to a commodity webcam and mic.
+Build an always-on demo that streams webcam frames and mic audio to Gemini 2.0, plays back the model’s synthesized speech, and lets visitors banter with a sarcastic “AI face.” The project highlights low-latency media pipelines, prompt-driven personality control, and a lightweight Gradio front-end—all on commodity hardware.
 
 ### Exhibition
 
 ![photo from GenML live-demo](artifacts/exhibition.jpeg)
 
-**Figure 1**: Photo from the GenML exhibition showing *Agnes*, the interactive multimodal agent, in action.
-
+**Figure 1**: *Agnes* trolling attendees at the GenML exhibition.
 
 ### Approach
 
-We pair Google Gemini 2.0’s backend with a lightweight Gradio front-end: every webcam frame and microphone chunk is streamed to Gemini and the model returns synthesized speech in real time.  The only hardware requirements are a working camera and either a dynamic or built-in computer mic; configuration lives in `config.yaml`, while implementation specifics are in `app.py`.  At launch we seed Gemini with custom system instructions so the agent—Agnes—immediately begins roasting whoever appears on-screen.
+Webcam video and audio stream into Gemini’s Live API<sup>[1](#ref1)</sup>; Gemini returns speech that we play back in real time. Gradio wraps the loop in a one-click web UI, while `config.yaml` toggles mic type, model, and voice. On startup we load `instructions.txt`, so *Agnes* begins roasting whoever steps into view.
 
-### On Replication
-
-A full step-by-step guide for running Agnes locally—including environment setup, credentials, and troubleshooting—is in **[replication.md](replication.md)**.
 
 ### Directory Structure
 
@@ -39,20 +35,22 @@ A full step-by-step guide for running Agnes locally—including environment setu
 └── setup.sh
 ```
 
-- **`app.py`**   main application entry-point  
-- **`config.yaml`**   development-friendly overrides (mic type, model, instructions file, voice)  
-- **`media.yaml`**   detailed runtime parameters (sample rates, video intervals, etc.)  
-- **`instructions.txt`**   system prompt defining agent behaviour  
-- **`requirements.txt`**   pinned Python dependencies  
-- **`setup.sh`**   helper script to scaffold your environment  
-
+- `app.py`  — application entry-point  
+- `config.yaml`  — dev-level knobs (mic, model, voice)  
+- `media.yaml`  — runtime A/V parameters  
+- `instructions.txt`  — system prompt  
+- `requirements.txt`  — pinned dependencies  
+- `setup.sh`  — environment bootstrapper  
 
 ### Results
 
+A fully functioning multimodal agent that insults users in real time with negligible latency.
 
-<br>
+### On Replication
+
+For a step-by-step local setup guide (env creation, credentials, troubleshooting), see **[replication.md](replication.md)**.
+
 
 ### References
 
-https://ai.google.dev/gemini-api/docs/live
-
+<a name="ref1" href="https://ai.google.dev/gemini-api/docs/live">[1]</a>: Google Gemini Live API documentation – official guide to streaming audio/video into Gemini models.
