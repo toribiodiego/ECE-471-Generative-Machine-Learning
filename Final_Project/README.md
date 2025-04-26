@@ -11,7 +11,7 @@ Build an always-on demo that streams webcam frames and mic audio to Gemini 2.0, 
 
 ![photo from GenML live-demo](artifacts/exhibition.jpeg)
 
-**Figure 1**: *Agnes* trolling attendees at the GenML exhibition.
+**Figure 1**: *Agnes* at the GenML exhibition.
 
 ### Approach
 
