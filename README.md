@@ -26,4 +26,7 @@ This course delves into the creative and technical dimensions of generative mach
 
 
 ### Final Project
+**Project:** Agnes
+**Team Members:** Amelia Chan, Era Dogani, Ben Butler, and Diego Toribio
+
 This project uses the Gemini 2.0 Live API to build an interactive installation where users engage with a real-time agent through both speech and a live video stream. The idea is to create a system that listens and responds with dynamic visual feedback, merging state-of-the-art generative machine learning techniques with interactive design. 
