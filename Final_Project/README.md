@@ -2,8 +2,10 @@
 
 ## Interactive Multimodal Agent (Audio-Video)
 
-This document guides you through setting up and running the Generative Machine Learning live audio/video demo, and provides a high-level overview of its architecture and prompt engineering.
+All source code, configuration files, and assets needed to run *Agnes*—our live, webcam-driven multimodal troll—are collected here. You’ll find the Python application (`app.py`), YAML configs for audio/video and model settings, Gradio UI scaffolding, the insult-laden system prompt, and exhibition artifacts such as screenshots and posters.
 
+### Objective  
+Create an always-on demonstrator that streams real-time video frames and microphone audio to Gemini 2.0, then plays back the model’s synthesized speech so visitors can banter with a sarcastic “AI face.” The project explores low-latency media pipelines, prompt engineering for personality control, and lightweight front-end delivery via Gradio—all while keeping hardware requirements to a commodity webcam and mic.
 
 ### Exhibition
 
@@ -49,3 +51,8 @@ A full step-by-step guide for running Agnes locally—including environment setu
 
 
 <br>
+
+### References
+
+https://ai.google.dev/gemini-api/docs/live
+
