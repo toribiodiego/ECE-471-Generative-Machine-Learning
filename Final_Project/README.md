@@ -5,16 +5,56 @@
 This document guides you through setting up and running the Generative Machine Learning live audio/video demo, and provides a high-level overview of its architecture and prompt engineering.
 
 
-### Repository
 
-First, clone the repository so that all source code and assets are available on your local machine. This ensures you have the exact version of the demo we used:
+### Approach
 
-```bash
-git clone https://github.com/toribiodiego/ECE-471-Generative-Machine-Learning.git
-cd ECE-471-Generative-Machine-Learning/Final_Project
+- **MediaLoop**  
+  - Captures real-time audio (via `pyaudio`) and video frames (via `OpenCV`).  
+  - Sends encoded media to Gemini and receives synthesized audio for playback.  
+  - Streams live video feed alongside model-generated responses.
+
+- **Gemini Configuration**  
+  - Model: specified by `config["GEMINI_MODEL"]` (default: `gemini-2.0-flash-exp`).  
+  - HTTP options and response modalities configured in `config["GEMINI_HTTP_OPTIONS"]` and `config["GEMINI_RESPONSE_MODALITIES"]`.
+  - System instructions loaded from `instructions.txt` via `load_system_instruction()`.
+
+- **Encoding Helpers**  
+  - `encode_text`, `encode_audio`, `encode_image_from_array` convert data to base64 MIME format for transmission.
+
+- **Gradio UI**  
+  - Uses `gradio.Blocks` to provide controls (`Start`, `Stop`) and display live video and status.
+
+<br>
+
+
+
+#### On Systems Instructions
+
+- The agent’s behavior is driven by **system instructions** in `instructions.txt`.  
+- To change how the model interacts, edit **only** `instructions.txt`.  
+- To switch models or voices, update **`config.yaml`** (no code changes required).
+
+<br>
+
+#### Tools
+
+
+<br>
+
+
+### Directory Structure
+
+```
+.
+├── README.md
+├── app.py
+├── config.yaml
+├── instructions.txt
+├── media.yaml
+├── requirements.txt
+└── setup.sh
 ```
 
-By cloning, you’ll pull down:
 - **`app.py`**: main application entrypoint  
 - **`config.yaml`**: development‑friendly overrides (e.g. mic type, model, instructions file, voice)  
 - **`media.yaml`**: detailed runtime parameters (e.g. sample rates, video intervals)  
@@ -23,10 +63,21 @@ By cloning, you’ll pull down:
 - **`setup.sh`**: helper script to scaffold your environment  
 
 
+### Replication
+
+First, clone the repository so that all source code and assets are available on your local machine. This ensures you have the exact version of the demo we used:
+
+```bash
+git clone https://github.com/toribiodiego/ECE-471-Generative-Machine-Learning.git
+cd ECE-471-Generative-Machine-Learning/Final_Project
+```
+
+
+
 <br>
 
 
-### Setup
+#### Setup
 
 Before running the demo, we prepare an isolated environment and configure your API credentials:
 
@@ -56,7 +107,7 @@ Before running the demo, we prepare an isolated environment and configure your A
 <br>
 
 
-### Running the Demo
+#### Running the Demo
 
 Start the application:
 ```bash
@@ -71,35 +122,6 @@ Click **Start** to begin the live audio/video session, and **Stop** to end it.
 
 <br>
 
-
-### High-Level Architecture
-
-- **MediaLoop**  
-  - Captures real-time audio (via `pyaudio`) and video frames (via `OpenCV`).  
-  - Sends encoded media to Gemini and receives synthesized audio for playback.  
-  - Streams live video feed alongside model-generated responses.
-
-- **Gemini Configuration**  
-  - Model: specified by `config["GEMINI_MODEL"]` (default: `gemini-2.0-flash-exp`).  
-  - HTTP options and response modalities configured in `config["GEMINI_HTTP_OPTIONS"]` and `config["GEMINI_RESPONSE_MODALITIES"]`.
-  - System instructions loaded from `instructions.txt` via `load_system_instruction()`.
-
-- **Encoding Helpers**  
-  - `encode_text`, `encode_audio`, `encode_image_from_array` convert data to base64 MIME format for transmission.
-
-- **Gradio UI**  
-  - Uses `gradio.Blocks` to provide controls (`Start`, `Stop`) and display live video and status.
-
-<br>
-
-
-### Prompt Engineering
-
-- The agent’s behavior is driven by **system instructions** in `instructions.txt`.  
-- To change how the model interacts, edit **only** `instructions.txt`.  
-- To switch models or voices, update **`config.yaml`** (no code changes required).
-
-<br>
 
 
 ### Troubleshooting
