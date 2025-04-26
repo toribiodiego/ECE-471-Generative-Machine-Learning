@@ -23,14 +23,14 @@ Webcam video and audio stream into Gemini’s Live API<sup>[1](#ref1)</sup>; Gem
 ```
 .
 ├── README.md
-├── replication.md
 ├── app.py
 ├── artifacts
-│   ├── agnes_poster.pdf
-│   └── exhibition.jpeg
+│   ├── agnes_poster.pdf
+│   └── exhibition.jpeg
 ├── config.yaml
 ├── instructions.txt
 ├── media.yaml
+├── replication.md
 ├── requirements.txt
 └── setup.sh
 ```
