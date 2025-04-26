@@ -5,6 +5,12 @@
 This document guides you through setting up and running the Generative Machine Learning live audio/video demo, and provides a high-level overview of its architecture and prompt engineering.
 
 
+### Exhibition
+
+![photo from GenML live-demo](artifacts/exhibition.jpeg)
+
+**Figure 1**: photo of Agnes, the interactive multimodal agent in the GenML exhibition.
+
 
 ### Approach
 
@@ -48,6 +54,9 @@ This document guides you through setting up and running the Generative Machine L
 .
 ├── README.md
 ├── app.py
+├── artifacts
+│   ├── agnes_poster.pdf
+│   └── exhibition.jpeg
 ├── config.yaml
 ├── instructions.txt
 ├── media.yaml
