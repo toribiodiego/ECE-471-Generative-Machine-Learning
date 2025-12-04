@@ -9,13 +9,21 @@ Build an always-on demo that streams webcam frames and mic audio to Gemini 2.0, 
 
 ### Exhibition
 
-![photo from GenML live-demo](artifacts/exhibition.jpeg)
+<p align="center">
+  <img src="artifacts/03-exhibition.jpeg" alt="Agnes at the GenML exhibition" width="60%">
+</p>
 
-**Figure 1**: *Agnes* at the GenML exhibition.
+<p align="center"><strong>Figure 1</strong>: <em>Agnes</em> at the GenML exhibition.</p>
 
 ### Approach
 
-Webcam video and audio stream into Gemini’s Live API<sup>[1](#ref1)</sup>; Gemini returns speech that we play back in real time. Gradio wraps the loop in a one-click web UI, while `config.yaml` toggles mic type, model, and voice. On startup we load `instructions.txt`, so *Agnes* begins roasting whoever steps into view.
+Webcam video and audio stream into Gemini's Live API<sup>[1](#ref1)</sup>; Gemini returns speech that we play back in real time. Gradio wraps the loop in a one-click web UI, while `config.yaml` toggles mic type, model, and voice. On startup we load `instructions.txt`, so *Agnes* begins roasting whoever steps into view.
+
+<p align="center">
+  <img src="artifacts/02-flowchart.png" alt="System flowchart showing data flow" width="70%">
+</p>
+
+<p align="center"><strong>Figure 2</strong>: System architecture showing the audio-video streaming loop through Gemini Live API.</p>
 
 
 ### Directory Structure
@@ -25,8 +33,9 @@ Webcam video and audio stream into Gemini’s Live API<sup>[1](#ref1)</sup>; Gem
 ├── README.md
 ├── app.py
 ├── artifacts
-│   ├── agnes_poster.pdf
-│   └── exhibition.jpeg
+│   ├── 01-poster.pdf
+│   ├── 02-flowchart.png
+│   └── 03-exhibition.jpeg
 ├── config.yaml
 ├── instructions.txt
 ├── media.yaml
