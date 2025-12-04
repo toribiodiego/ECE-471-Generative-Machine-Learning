@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 import yaml
 
 
-def load_config(config_path: str = "config.yaml", media_path: str = "media.yaml") -> Dict[str, Any]:
+def load_config(config_path: str = "src/config/config.yaml", media_path: str = "src/config/media.yaml") -> Dict[str, Any]:
     """Load and merge YAML configuration files.
 
     Loads both config.yaml (development settings) and media.yaml (runtime
@@ -18,8 +18,8 @@ def load_config(config_path: str = "config.yaml", media_path: str = "media.yaml"
     duplicate keys.
 
     Args:
-        config_path: Path to the main config YAML file. Defaults to "config.yaml".
-        media_path: Path to the media config YAML file. Defaults to "media.yaml".
+        config_path: Path to the main config YAML file. Defaults to "src/config/config.yaml".
+        media_path: Path to the media config YAML file. Defaults to "src/config/media.yaml".
 
     Returns:
         Merged configuration dictionary containing all settings.
