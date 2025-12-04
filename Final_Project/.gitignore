@@ -12,6 +12,13 @@ venv/
 ENV/
 env/
 
+# Testing
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+coverage_analysis.txt
+
 # Environment variables
 .env
 .env.local

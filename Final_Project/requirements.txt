@@ -8,3 +8,6 @@ python-dotenv
 pyaudio
 opencv-python
 pyyaml
+pytest==9.0.1
+pytest-asyncio==1.3.0
+pytest-cov==7.0.0
