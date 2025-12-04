@@ -27,6 +27,37 @@ The refactored codebase organizes functionality into clean modules: utilities ha
 
 <p align="center"><strong>Figure 2</strong>: System architecture showing the audio-video streaming loop through Gemini Live API.</p>
 
+<p align="center"><em>Markdown-rendered version of Figure 2 (Mermaid, renders on GitHub/VS Code).</em></p>
+
+```mermaid
+flowchart LR
+    start["Start (Gradio)"]
+
+    subgraph Control["Control"]
+        session["Session Manager<br/>starts MediaLoop"]
+    end
+
+    subgraph Capture["Capture"]
+        mic["Mic capture<br/>(PyAudio)"]
+        cam["Video capture<br/>(OpenCV)"]
+    end
+
+    gemini["Gemini Live session<br/>(audio + video)"]
+
+    subgraph Output["Output"]
+        playback["Audio playback<br/>(PyAudio out)"]
+    end
+
+    visitor["Visitor<br/>(hears speech)"]
+
+    start --> session
+    session --> mic
+    session --> cam
+    mic --> gemini
+    cam --> gemini
+    gemini -->|"speech audio"| playback --> visitor
+```
+
 
 ### Directory Structure
 
