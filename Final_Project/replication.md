@@ -11,8 +11,8 @@ cd ECE-471-Generative-Machine-Learning/Final_Project
 
 Before running the demo, we prepare an isolated environment and configure your API credentials.
 
-1. **Virtual Environment (`venv`)**  
-   Keeps this project’s Python packages separate from your global installation, avoiding version conflicts.
+1. **Virtual Environment (`.venv`)**
+   Keeps this project's Python packages separate from your global installation, avoiding version conflicts.
 
 2. **Dependencies (`requirements.txt`)**  
    Specifies exactly which library versions the demo needs (e.g. `gradio`, `pyaudio`, `PyYAML`, Google Gemini).
@@ -38,7 +38,7 @@ Before running the demo, we prepare an isolated environment and configure your A
 Start the application:
 
 ```bash
-python app.py
+python -m src.app
 ```
 
 In your browser, navigate to:
