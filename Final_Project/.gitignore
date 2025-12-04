@@ -8,6 +8,7 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 ENV/
 env/
 
@@ -25,3 +26,11 @@ env/
 .DS_Store
 ../.DS_Store
 Thumbs.db
+
+# Output directories (except .gitkeep)
+output/artifacts/*
+!output/artifacts/.gitkeep
+output/logs/*
+!output/logs/.gitkeep
+output/recordings/*
+!output/recordings/.gitkeep
