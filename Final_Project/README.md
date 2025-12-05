@@ -10,7 +10,7 @@ Build an always-on demo that streams webcam frames and mic audio to Gemini 2.0, 
 ### Exhibition
 
 <p align="center">
-  <img src="artifacts/03-exhibition.jpeg" alt="Agnes at the GenML exhibition" width="60%">
+  <img src="artifacts/01-exhibition.jpeg" alt="Agnes at the GenML exhibition" width="60%">
 </p>
 
 <p align="center"><strong>Figure 1</strong>: <em>Agnes</em> at the GenML exhibition.</p>
@@ -36,9 +36,9 @@ The refactored codebase organizes functionality into clean modules: utilities ha
 
 <div align="center">
 
-<img src="artifacts/04-figure2.png" alt="Figure 2: System interaction flow" width="800">
+<img src="artifacts/02-figure2.png" alt="Figure 2: System interaction flow" width="1000">
 
-<p><strong>Figure 2</strong>: Microphone and camera input flows to Agnus for speech and image processing, generating audio responses back to the user.</p>
+<p><strong>Figure 2</strong>: User provides audio and video input to Agnus, which processes speech and images to generate audio responses.</p>
 
 </div>
 
@@ -59,9 +59,9 @@ The refactored codebase organizes functionality into clean modules: utilities ha
 
 <div align="center">
 
-<img src="artifacts/05-figure3.png" alt="Figure 3: Technical component flow" width="900">
+<img src="artifacts/03-figure3.png" alt="Figure 3: Technical component flow" width="1300">
 
-<p><strong>Figure 3</strong>: Technical component flow from interface through session management, media capture, processing, and playback.</p>
+<p><strong>Figure 3</strong>: Data flows from the Gradio interface through session management to capture audio (PyAudio) and video (OpenCV), which are processed by Gemini Live API and returned as audio playback.</p>
 
 </div>
 
