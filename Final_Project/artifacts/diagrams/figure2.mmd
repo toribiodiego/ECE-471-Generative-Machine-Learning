@@ -1,0 +1,23 @@
+flowchart LR
+
+    %% Agnus box (right)
+    subgraph AgnusBox [Agnus]
+        direction TB
+        Speech[Speech Processing]
+        Image[Image Recognition]
+        Response[Response Generation]
+    end
+
+    %% User box (left)
+    subgraph UserBox [User]
+        direction LR
+        Audio[Mic]
+        Video[Camera]
+        Audio ~~~ Video
+    end
+
+    %% Flows
+    UserBox -->|"input"| AgnusBox
+    Speech --> Response
+    Image --> Response
+    AgnusBox -->|"output"| UserBox
