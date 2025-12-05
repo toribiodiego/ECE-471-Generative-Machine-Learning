@@ -1,3 +1,5 @@
+[Documentation Index](README.md) > Deployment
+
 # Deployment Guide
 
 This guide provides comprehensive instructions for deploying the Agnus multimodal agent in production environments, covering hardware requirements, environment configuration, deployment options, and performance optimization.
@@ -123,16 +125,6 @@ GEMINI_API_KEY=your_gemini_api_key_here
 - Use restrictive file permissions: `chmod 600 .env`
 - Rotate keys regularly (every 90 days recommended)
 - Use different keys for development and production
-
-### Optional Environment Variables
-
-Additional Twilio credentials if using phone integration (future feature):
-
-```ini
-# Twilio (Optional)
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-```
 
 ### Configuration Files
 

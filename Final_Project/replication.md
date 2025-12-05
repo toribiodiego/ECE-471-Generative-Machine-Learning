@@ -39,17 +39,14 @@ You should see output confirming the virtual environment was created and package
 
 ## Step 3: Configure API Credentials
 
-Open the newly created `.env` file in your editor and fill in your API keys:
+Open the newly created `.env` file in your editor and fill in your API key:
 
 ```ini
 GEMINI_API_KEY=your_gemini_api_key_here
-TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
-TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
 ```
 
-**Where to get these:**
+**Where to get this:**
 - **Gemini API Key**: Get one from [Google AI Studio](https://ai.google.dev/gemini-api/docs)
-- **Twilio Credentials**: Sign up at [Twilio](https://www.twilio.com/) (optional, only needed if using Twilio features)
 
 Save the file. The application will load these credentials at runtime using `python-dotenv`.
 
@@ -166,4 +163,6 @@ Once you have *Agnes* running:
 - Check out the test suite: `pytest tests/ -v`
 - Explore the modular codebase in `src/` to understand the architecture
 
-For questions or issues, refer to the main **[README.md](README.md)** for project structure and highlights.
+**For questions or issues:**
+- Check **[docs/troubleshooting.md](docs/troubleshooting.md)** for solutions to common problems with audio, video, network, and performance issues
+- Refer to the main **[README.md](README.md)** for project structure and highlights
