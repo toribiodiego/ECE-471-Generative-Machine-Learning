@@ -27,7 +27,7 @@ jobs:
       - name: Generate Figure 2 PNG
         run: |
           mmdc -i Final_Project/artifacts/diagrams/figure2.mmd \
-               -o Final_Project/artifacts/02-figure2.png \
+               -o Final_Project/artifacts/02-system-interaction.png \
                -b transparent \
                -w 1200 \
                -H 800 \
@@ -36,7 +36,7 @@ jobs:
       - name: Generate Figure 3 PNG
         run: |
           mmdc -i Final_Project/artifacts/diagrams/figure3.mmd \
-               -o Final_Project/artifacts/03-figure3.png \
+               -o Final_Project/artifacts/03-architecture.png \
                -b transparent \
                -w 1200 \
                -H 800 \
@@ -46,7 +46,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add Final_Project/artifacts/02-figure2.png Final_Project/artifacts/03-figure3.png
+          git add Final_Project/artifacts/02-system-interaction.png Final_Project/artifacts/03-architecture.png
           git diff --staged --quiet || git commit -m "chore: regenerate mermaid diagram images"
 
       - name: Push changes
