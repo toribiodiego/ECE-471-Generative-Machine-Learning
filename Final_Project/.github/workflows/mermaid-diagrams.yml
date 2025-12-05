@@ -31,16 +31,16 @@ jobs:
                -b transparent \
                -w 1200 \
                -H 800 \
-               -t default
+               -t dark
 
       - name: Generate Figure 3 PNG
         run: |
           mmdc -i Final_Project/artifacts/diagrams/figure3.mmd \
                -o Final_Project/artifacts/05-figure3.png \
                -b transparent \
-               -w 1200 \
-               -H 800 \
-               -t default
+               -w 1600 \
+               -H 900 \
+               -t dark
 
       - name: Commit generated images
         run: |
