@@ -2,7 +2,7 @@
 
 
 ## Generative Machine Learning
-**Course, Spring 2025**  
+**Course, Spring 2025**
 **Instructor:** Prof. Sam Keene and Prof. Benjamin Aranda
 
 
@@ -15,9 +15,20 @@ This course delves into the creative and technical dimensions of generative mach
 ```
 .
 ├── Excercise2
-│   └── GenML_sand.ipynb
+│   └── GenML_sand.ipynb
 ├── Final_Project
-│   └── README.md
+│   ├── src/
+│   │   ├── app.py
+│   │   ├── config/
+│   │   ├── core/
+│   │   ├── ui/
+│   │   └── utils/
+│   ├── docs/
+│   ├── artifacts/
+│   ├── tests/
+│   ├── README.md
+│   ├── requirements.txt
+│   └── setup.sh
 ├── README.md
 ├── app.py
 ├── instructions.txt
@@ -26,7 +37,7 @@ This course delves into the creative and technical dimensions of generative mach
 
 
 ### Final Project
-**Project:** Agnes a Interactive Multimodal Agent    
-**Team Members:** Amelia Chan, Era Dogani, Ben Butler, and Diego Toribio   
+**Project:** Agnes a Interactive Multimodal Agent
+**Team Members:** Amelia Chan, Era Dogani, Ben Butler, and Diego Toribio
 
-This project uses the Gemini 2.0 Live API to build an interactive installation where users engage with a real-time agent through both speech and a live video stream. The idea is to create a system that listens and responds with dynamic visual feedback, merging state-of-the-art generative machine learning techniques with interactive design. 
+This project uses the Gemini 2.0 Live API to build an interactive installation where users engage with a real-time agent through both speech and a live video stream. The idea is to create a system that listens and responds with dynamic visual feedback, merging state-of-the-art generative machine learning techniques with interactive design.
