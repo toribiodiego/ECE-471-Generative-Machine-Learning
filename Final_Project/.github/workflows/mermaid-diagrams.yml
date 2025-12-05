@@ -1,0 +1,54 @@
+name: Generate Mermaid Diagrams
+
+on:
+  push:
+    paths:
+      - 'Final_Project/artifacts/diagrams/*.mmd'
+  workflow_dispatch:
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Mermaid CLI
+        run: npm install -g @mermaid-js/mermaid-cli
+
+      - name: Generate Figure 2 PNG
+        run: |
+          mmdc -i Final_Project/artifacts/diagrams/figure2.mmd \
+               -o Final_Project/artifacts/04-figure2.png \
+               -b transparent \
+               -w 1200 \
+               -H 800
+
+      - name: Generate Figure 3 PNG
+        run: |
+          mmdc -i Final_Project/artifacts/diagrams/figure3.mmd \
+               -o Final_Project/artifacts/05-figure3.png \
+               -b transparent \
+               -w 1200 \
+               -H 800
+
+      - name: Commit generated images
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add Final_Project/artifacts/04-figure2.png Final_Project/artifacts/05-figure3.png
+          git diff --staged --quiet || git commit -m "chore: regenerate mermaid diagram images"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
