@@ -59,38 +59,7 @@ The refactored codebase organizes functionality into clean modules: utilities ha
 
 <div align="center">
 
-```mermaid
-flowchart LR
-    subgraph Interface["Interface"]
-        start["Gradio"]
-    end
-
-    subgraph Control["Control"]
-        session["Session Manager"]
-        medialoop["MediaLoop"]
-    end
-
-    subgraph Capture["Capture"]
-        mic["Mic (PyAudio)"]
-        cam["Cam (OpenCV)"]
-    end
-
-    subgraph Processing["Processing"]
-        gemini["Gemini Live API"]
-    end
-
-    subgraph Output["Output"]
-        playback["Playback (audio out)"]
-    end
-
-    start --> session
-    session --> medialoop
-    medialoop --> mic
-    medialoop --> cam
-    mic -->|"audio"| gemini
-    cam -->|"video"| gemini
-    gemini -->|"audio"| playback
-```
+<img src="artifacts/05-figure3.png" alt="Figure 3: Technical component flow" width="900">
 
 <p><strong>Figure 3</strong>: Technical component flow from interface through session management, media capture, processing, and playback.</p>
 
