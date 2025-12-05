@@ -1,0 +1,30 @@
+flowchart LR
+    subgraph Interface["Interface"]
+        start["Gradio"]
+    end
+
+    subgraph Control["Control"]
+        session["Session Manager"]
+        medialoop["MediaLoop"]
+    end
+
+    subgraph Capture["Capture"]
+        mic["Mic (PyAudio)"]
+        cam["Cam (OpenCV)"]
+    end
+
+    subgraph Processing["Processing"]
+        gemini["Gemini Live API"]
+    end
+
+    subgraph Output["Output"]
+        playback["Playback (audio out)"]
+    end
+
+    start --> session
+    session --> medialoop
+    medialoop --> mic
+    medialoop --> cam
+    mic -->|"audio"| gemini
+    cam -->|"video"| gemini
+    gemini -->|"audio"| playback
