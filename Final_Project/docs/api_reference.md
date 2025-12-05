@@ -1,3 +1,5 @@
+[Documentation Index](README.md) > API Reference
+
 # API Reference
 
 This document provides comprehensive API documentation for all public functions and classes in the Agnus multimodal agent application.

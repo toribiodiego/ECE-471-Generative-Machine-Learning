@@ -1,3 +1,5 @@
+[Documentation Index](README.md) > Architecture
+
 # Architecture Documentation
 
 This document provides a comprehensive technical overview of the Agnus multimodal agent system, covering system design, data flow, component interactions, and deployment considerations.
@@ -574,7 +576,14 @@ Potential improvements for production deployment:
 
 ---
 
-## References
+## See Also
+
+- [API Reference](api_reference.md) - Detailed API documentation for all modules
+- [Deployment Guide](deployment_guide.md) - Production deployment instructions
+- [Troubleshooting Guide](troubleshooting.md) - Common issues and solutions
+- [README](../README.md) - Project overview and quick start
+
+## External References
 
 - [Gemini Live API Documentation](https://ai.google.dev/gemini-api/docs/live)
 - [PyAudio Documentation](https://people.csail.mit.edu/hubert/pyaudio/docs/)
