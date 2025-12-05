@@ -21,43 +21,83 @@ Webcam video and audio stream into Gemini's Live API<sup>[1](#ref1)</sup>; Gemin
 
 The refactored codebase organizes functionality into clean modules: utilities handle config and media processing, core modules manage the streaming loop and sessions, and the UI layer presents a simple web interface. Everything's tested with a comprehensive suite (93 tests, 99% coverage) to keep the chaos under control.
 
-<p align="center">
-  <img src="artifacts/02-flowchart.png" alt="System flowchart showing data flow" width="70%">
-</p>
+<br>
 
-<p align="center"><strong>Figure 2</strong>: System architecture showing the audio-video streaming loop through Gemini Live API.</p>
+<div align="left" style="margin-bottom: 10px;">
 
-<p align="center"><em>Markdown-rendered version of Figure 2 (Mermaid, renders on GitHub/VS Code).</em></p>
+**Legend**
+
+| Label | Description |
+|-------|-------------|
+| input | audio + video |
+| output | audio |
+
+</div>
+
+<div align="center">
+
+<img src="artifacts/04-figure2.png" alt="Figure 2: System interaction flow" width="800">
+
+<p><strong>Figure 2</strong>: Microphone and camera input flows to Agnus for speech and image processing, generating audio responses back to the user.</p>
+
+</div>
+
+<br>
+<br>
+
+<div align="left" style="margin-bottom: 10px;">
+
+**Legend**
+
+| Component | Technology |
+|-----------|------------|
+| Interface | Gradio |
+| Capture | PyAudio, OpenCV |
+| Processing | Gemini Live API |
+
+</div>
+
+<div align="center">
 
 ```mermaid
 flowchart LR
-    start["Start (Gradio)"]
+    subgraph Interface["Interface"]
+        start["Gradio"]
+    end
 
     subgraph Control["Control"]
-        session["Session Manager<br/>starts MediaLoop"]
+        session["Session Manager"]
+        medialoop["MediaLoop"]
     end
 
     subgraph Capture["Capture"]
-        mic["Mic capture<br/>(PyAudio)"]
-        cam["Video capture<br/>(OpenCV)"]
+        mic["Mic (PyAudio)"]
+        cam["Cam (OpenCV)"]
     end
 
-    gemini["Gemini Live session<br/>(audio + video)"]
+    subgraph Processing["Processing"]
+        gemini["Gemini Live API"]
+    end
 
     subgraph Output["Output"]
-        playback["Audio playback<br/>(PyAudio out)"]
+        playback["Playback (audio out)"]
     end
 
-    visitor["Visitor<br/>(hears speech)"]
-
     start --> session
-    session --> mic
-    session --> cam
-    mic --> gemini
-    cam --> gemini
-    gemini -->|"speech audio"| playback --> visitor
+    session --> medialoop
+    medialoop --> mic
+    medialoop --> cam
+    mic -->|"audio"| gemini
+    cam -->|"video"| gemini
+    gemini -->|"audio"| playback
 ```
 
+<p><strong>Figure 3</strong>: Technical component flow from interface through session management, media capture, processing, and playback.</p>
+
+</div>
+
+<br>
+<br>
 
 ### Directory Structure
 
@@ -164,6 +204,13 @@ A fully functioning multimodal agent that insults users in real time with neglig
 
 For a detailed step-by-step local setup guide (environment creation, credentials, troubleshooting), see **[replication.md](replication.md)**.
 
+### Next Steps
+
+**For production deployment:**
+- See **[docs/deployment_guide.md](docs/deployment_guide.md)** for comprehensive production deployment instructions, performance optimization, and monitoring setup.
+
+**If you encounter issues:**
+- Check **[docs/troubleshooting.md](docs/troubleshooting.md)** for solutions to common problems with audio, video, network, and performance issues.
 
 ### References
 
