@@ -7,6 +7,8 @@ Everything required to run *Agnes*—source, configs, tests, and exhibition asse
 ### Objective
 Build an always-on demo that streams webcam frames and mic audio to Gemini 2.0, plays back the model's synthesized speech, and lets visitors banter with a sarcastic "AI face." The project highlights low-latency media pipelines, prompt-driven personality control, and a lightweight Gradio front-end—all on commodity hardware.
 
+<br>
+
 ### Exhibition
 
 <p align="center">
@@ -15,11 +17,15 @@ Build an always-on demo that streams webcam frames and mic audio to Gemini 2.0, 
 
 <p align="center"><strong>Figure 1</strong>: <em>Agnes</em> at the GenML exhibition.</p>
 
+<br>
+
 ### Approach
 
 Webcam video and audio stream into Gemini's Live API<sup>[1](#ref1)</sup>; Gemini returns speech that we play back in real time. Gradio wraps the loop in a one-click web UI, while configs toggle mic type, model, and voice. On startup we load the system instructions, so *Agnes* begins roasting whoever steps into view.
 
 The refactored codebase organizes functionality into clean modules: utilities handle config and media processing, core modules manage the streaming loop and sessions, and the UI layer presents a simple web interface. Everything's tested with a comprehensive suite (93 tests, 99% coverage) to keep the chaos under control.
+
+The result is a fully functioning multimodal agent that mocks and provokes users in real time with negligible latency.
 
 <br>
 
@@ -36,13 +42,62 @@ The refactored codebase organizes functionality into clean modules: utilities ha
 
 <div align="center">
 
-<img src="artifacts/02-figure2.png" alt="Figure 2: System interaction flow" width="1000">
+<img src="artifacts/02-system-interaction.png" alt="Figure 2: System interaction flow" width="1000">
 
 <p><strong>Figure 2</strong>: User provides audio and video input to Agnus, which processes speech and images to generate audio responses.</p>
 
 </div>
 
 <br>
+<br>
+
+### Getting Started
+
+**1. Clone and navigate:**
+```bash
+git clone https://github.com/toribiodiego/ECE-471-Generative-Machine-Learning.git
+cd ECE-471-Generative-Machine-Learning/Final_Project
+```
+
+**2. Set up environment:**
+```bash
+chmod +x setup.sh
+source ./setup.sh
+```
+
+This creates a virtual environment, installs dependencies, and generates a `.env` template.
+
+**3. Add credentials:**
+
+Open `.env` and fill in your API key:
+```ini
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+**4. Launch the app:**
+```bash
+python -m src.app
+```
+
+Head to `http://127.0.0.1:7860/` in your browser, click **Start** to begin the live session, and **Stop** to end it.
+
+<br>
+
+**Next Steps:**
+
+For a detailed local setup guide, see [replication.md](replication.md).
+
+For production deployment, see [docs/deployment_guide.md](docs/deployment_guide.md) for comprehensive instructions, performance optimization, and monitoring setup.
+
+If you encounter issues, check [docs/troubleshooting.md](docs/troubleshooting.md) for solutions to common problems.
+
+<br>
+<br>
+
+### Directory
+
+The project follows a modular design that separates concerns, making the codebase maintainable, testable, and extensible. This architecture enables easier debugging, safer refactoring, and comprehensive testing (93 tests, 99% coverage).
+
 <br>
 
 <div align="left" style="margin-bottom: 10px;">
@@ -59,127 +114,60 @@ The refactored codebase organizes functionality into clean modules: utilities ha
 
 <div align="center">
 
-<img src="artifacts/03-figure3.png" alt="Figure 3: Technical component flow" width="1300">
+<img src="artifacts/03-architecture.png" alt="Figure 3: Technical component flow" width="1300">
 
 <p><strong>Figure 3</strong>: Data flows from the Gradio interface through session management to capture audio (PyAudio) and video (OpenCV), which are processed by Gemini Live API and returned as audio playback.</p>
 
 </div>
 
 <br>
-<br>
 
-### Directory Structure
+**Project Structure:**
 
 ```
 .
-├── src/                    # Source code (modular architecture)
-│   ├── app.py             # Main entry point
-│   ├── config/            # Configuration files
-│   │   ├── config.yaml    # Dev-level knobs (mic, model, voice)
-│   │   ├── media.yaml     # Runtime A/V parameters
-│   │   └── instructions.txt  # System prompt
-│   ├── core/              # Core application logic
-│   │   ├── media_loop.py  # Async streaming loop
-│   │   └── session_manager.py  # Session lifecycle
-│   ├── ui/                # User interface
-│   │   └── gradio_interface.py  # Web UI components
-│   └── utils/             # Utility modules
-│       ├── config_loader.py     # Config management
-│       ├── gemini_client.py     # Gemini API client
-│       └── media_processing.py  # Image/audio processing
-├── tests/                 # Test suite (93 tests, 99% coverage)
-├── output/                # Runtime outputs (logs, recordings, artifacts)
-├── artifacts/             # Exhibition materials (poster, photos, flowchart)
-├── replication.md         # Step-by-step setup guide
-├── requirements.txt       # Pinned dependencies
-└── setup.sh              # Environment bootstrapper
+├── src/
+│   ├── app.py
+│   ├── config/
+│   │   ├── config.yaml
+│   │   ├── media.yaml
+│   │   └── instructions.txt
+│   ├── core/
+│   │   ├── media_loop.py
+│   │   └── session_manager.py
+│   ├── ui/
+│   │   └── gradio_interface.py
+│   └── utils/
+│       ├── config_loader.py
+│       ├── gemini_client.py
+│       └── media_processing.py
+├── tests/
+├── output/
+├── artifacts/
+├── replication.md
+├── requirements.txt
+└── setup.sh
 ```
 
-**Quick tour:**
-- `src/app.py` — launch the application from here
-- `src/config/` — tweak mic settings, model choice, personality
-- `src/core/` — the heart of the streaming loop and session management
-- `src/ui/` — Gradio web interface components
-- `src/utils/` — helpers for config, media, and API client setup
-- `tests/` — comprehensive test suite covering all modules
+**Source Code (src/)**
+- `app.py` - Launch the application
+- `config/` - YAML configs and system prompt to change behavior without touching code (mic type, model selection, voice settings, personality)
+- `core/` - Business logic with async streaming loop coordinating four concurrent tasks (audio in/out, video capture, message receiving) and session lifecycle management
+- `ui/` - Gradio web interface (presentation layer, isolated from core logic)
+- `utils/` - Standalone helpers for config loading, API clients, and media processing (pure functions, easy to test and reuse)
 
-### Getting Started
+**Testing & Output**
+- `tests/` - Comprehensive test suite with 93 tests and 99% coverage across all modules
+- `output/` - Runtime-generated logs, recordings, and processing artifacts
 
-**1. Clone and navigate:**
-```bash
-git clone https://github.com/toribiodiego/ECE-471-Generative-Machine-Learning.git
-cd ECE-471-Generative-Machine-Learning/Final_Project
-```
+**Setup**
+- `setup.sh` - Creates virtual environment and installs dependencies
+- `replication.md` - Step-by-step local setup guide
 
-**2. Set up environment:**
-```bash
-chmod +x setup.sh
-source ./setup.sh
-```
+The async design keeps latency low by coordinating tasks without blocking. For full technical details, system diagrams, and deployment considerations, see [docs/architecture.md](docs/architecture.md).
 
-This creates a `.venv/` virtual environment, installs all dependencies from `requirements.txt`, and generates a `.env` template for your API keys.
-
-**3. Add credentials:**
-
-Open `.env` and fill in your API keys:
-```ini
-GEMINI_API_KEY=your_gemini_api_key
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_token
-```
-
-**4. Launch the app:**
-```bash
-python -m src.app
-```
-
-Head to `http://127.0.0.1:7860/` in your browser, click **Start** to begin the live session, and **Stop** to end it.
-
-### Project Highlights
-
-- **Modular architecture** — clean separation between config, core logic, UI, and utilities
-- **Comprehensive testing** — 93 tests with 99% code coverage
-- **Real-time multimodal streaming** — sub-second latency for audio and video
-- **Personality control** — system prompt drives conversational behavior
-- **Production-ready** — async design, error handling, session management
-
-### Architecture Overview
-
-The project follows a modular design that separates concerns and makes the codebase maintainable, testable, and extensible. Here's why that matters:
-
-**Why modular?**
-- **Easier debugging** — when audio fails, you know to check `src/core/media_loop.py`, not dig through thousands of lines
-- **Safer changes** — refactoring config loading doesn't risk breaking the UI or session management
-- **Better testing** — each module has focused unit tests (93 total, 99% coverage), catching bugs before they reach production
-- **Team-friendly** — multiple people can work on different modules without merge conflicts
-- **Reusable components** — the Gemini client and media processing utilities can be extracted for other projects
-
-**How it's organized:**
-- `src/config/` — YAML configs and system prompt (change behavior without touching code)
-- `src/utils/` — Standalone helpers for config loading, API clients, media processing (pure functions, easy to test)
-- `src/core/` — The business logic: async streaming loop and session lifecycle (where the magic happens)
-- `src/ui/` — Gradio web interface (presentation layer, isolated from core logic)
-- `tests/` — Comprehensive test coverage for all modules (confidence that refactoring won't break things)
-
-The async design in `src/core/media_loop.py` coordinates four concurrent tasks (audio input, audio output, video capture, message receiving) without blocking. This keeps latency low and the agent responsive.
-
-**Want the full technical breakdown?** Check out **[docs/architecture.md](docs/architecture.md)** for system diagrams, data flow details, and deployment considerations.
-
-### Results
-
-A fully functioning multimodal agent that insults users in real time with negligible latency.
-
-### On Replication
-
-For a detailed step-by-step local setup guide (environment creation, credentials, troubleshooting), see **[replication.md](replication.md)**.
-
-### Next Steps
-
-**For production deployment:**
-- See **[docs/deployment_guide.md](docs/deployment_guide.md)** for comprehensive production deployment instructions, performance optimization, and monitoring setup.
-
-**If you encounter issues:**
-- Check **[docs/troubleshooting.md](docs/troubleshooting.md)** for solutions to common problems with audio, video, network, and performance issues.
+<br>
+<br>
 
 ### References
 
