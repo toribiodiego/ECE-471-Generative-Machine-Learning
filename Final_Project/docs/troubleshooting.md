@@ -1,3 +1,5 @@
+[Documentation Index](README.md) > Troubleshooting
+
 # Troubleshooting Guide
 
 This guide provides solutions to common issues encountered when running the Agnus multimodal agent. Issues are organized by category with diagnostic steps and solutions.
@@ -12,6 +14,19 @@ This guide provides solutions to common issues encountered when running the Agnu
 - [Installation Issues](#installation-issues)
 - [Platform-Specific Issues](#platform-specific-issues)
 - [Getting Additional Help](#getting-additional-help)
+
+---
+
+## Common Issues Quick Links
+
+**Most Frequent Issues**:
+- [Agent interrupting itself](#issue-agent-interrupting-itself-audio-feedback-loop)
+- [Audio crackling or popping](#issue-audio-crackling-or-popping-sounds)
+- [Camera not detected](#issue-camera-not-detected)
+- [Microphone not working](#issue-no-audio-captured-from-microphone)
+- [API rate limit exceeded](#issue-gemini-api-rate-limit-exceeded)
+- [High latency](#issue-high-latency-slow-response-time)
+- [PyAudio installation failed](#issue-pyaudio-installation-failed)
 
 ---
 
@@ -266,6 +281,97 @@ print('✓ If you heard a tone, speakers are working')
    GEMINI_RESPONSE_MODALITIES:
      - AUDIO  # Ensure this is set
    ```
+
+### Issue: Agent Interrupting Itself (Audio Feedback Loop)
+
+**Symptoms**:
+- Agnes cuts herself off mid-sentence
+- Agnes stops speaking abruptly and restarts
+- Conversational flow feels choppy
+
+**Cause**:
+The microphone is picking up audio from the speakers, creating a feedback loop. When Agnes speaks, her voice is captured by the microphone and interpreted as user input, causing her to stop speaking and listen.
+
+**Solutions**:
+
+1. **Use headphones** (Recommended):
+   - Prevents microphone from capturing speaker output
+   - Provides the best user experience
+   - Eliminates feedback loop completely
+
+2. **Lower speaker volume**:
+   - Reduce system volume to minimum audible level
+   - Microphone is less likely to pick up speaker audio
+   - Trade-off: harder to hear Agnes
+
+3. **Position microphone away from speakers**:
+   - Increase physical distance between mic and speakers
+   - Point microphone away from speaker direction
+   - Use directional microphone if available
+
+4. **Adjust microphone sensitivity**:
+   - macOS: System Preferences → Sound → Input → Input Volume
+   - Windows: Settings → System → Sound → Input device properties
+   - Reduce input volume to minimize speaker pickup
+
+**Technical Explanation**:
+The Gemini Live API uses automatic activity detection to determine when users are speaking. When the microphone picks up Agnes's voice from the speakers, the system incorrectly interprets this as user input and interrupts Agnes to listen. Using headphones or lowering volume prevents this audio feedback loop.
+
+### Issue: Audio Crackling or Popping Sounds
+
+**Symptoms**:
+- Crackling, popping, or static noises in Agnes's voice
+- Audio sounds distorted or has artifacts
+- Periodic clicks or pops during playback
+
+**Cause**:
+Audio buffer size mismatch or processing delays. The chunk size (audio buffer) may not align well with your system's audio processing capabilities.
+
+**Solutions**:
+
+1. **Adjust chunk size** in `src/core/media_loop.py`:
+   ```python
+   # Current setting for computer_mic
+   _CHUNK_MAP = {"dynamic_mic": 512, "computer_mic": 1024}
+
+   # If crackling persists, try:
+   # Smaller chunks (more responsive, may fix crackling):
+   _CHUNK_MAP = {"dynamic_mic": 512, "computer_mic": 512}
+
+   # Larger chunks (less CPU intensive, smoother):
+   _CHUNK_MAP = {"dynamic_mic": 512, "computer_mic": 2048}
+   ```
+
+2. **Use power-of-2 values**:
+   - Always use chunk sizes that are powers of 2 (512, 1024, 2048, 4096)
+   - Non-power-of-2 values (e.g., 1536) can cause audio artifacts
+   - Optimal value depends on your hardware
+
+3. **Check system audio settings**:
+   - Close other applications using audio
+   - Disable audio enhancements in system settings
+   - Update audio drivers (Windows/Linux)
+
+4. **Verify sample rate compatibility**:
+   ```bash
+   # Check your audio device's native sample rate
+   python3 -c "
+   import pyaudio
+   p = pyaudio.PyAudio()
+   info = p.get_default_input_device_info()
+   print('Sample rate:', info['defaultSampleRate'])
+   p.terminate()
+   "
+   ```
+
+**Technical Explanation**:
+The chunk size determines how many audio samples are processed at once. Smaller chunks provide lower latency but require more CPU and can cause crackling if the system can't keep up. Larger chunks are smoother but may introduce slight delays. The optimal chunk size depends on your system's audio hardware and processing power.
+
+**Recommended Settings by Hardware**:
+- **Modern Mac (M1/M2/M3)**: 1024 or 2048
+- **Intel Mac**: 1024
+- **High-end Windows/Linux**: 1024 or 2048
+- **Budget/Older systems**: 2048 or 4096
 
 ---
 
