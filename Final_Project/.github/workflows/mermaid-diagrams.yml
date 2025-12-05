@@ -30,7 +30,8 @@ jobs:
                -o Final_Project/artifacts/04-figure2.png \
                -b transparent \
                -w 1200 \
-               -H 800
+               -H 800 \
+               -t default
 
       - name: Generate Figure 3 PNG
         run: |
@@ -38,7 +39,8 @@ jobs:
                -o Final_Project/artifacts/05-figure3.png \
                -b transparent \
                -w 1200 \
-               -H 800
+               -H 800 \
+               -t default
 
       - name: Commit generated images
         run: |
