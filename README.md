@@ -1,4 +1,4 @@
-> Final project for **Generative Machine Learning (ECE-471)** at The Cooper Union -- a real-time multimodal agent that captures live audio and video via the Gemini Live API for interactive speech synthesis.
+> This repository contains the final project for **ECE 471: Generative Machine Learning**, a graduate-level course at The Cooper Union for the Advancement of Science and Art.
 
 ## Agnus -- Real-Time Multimodal Agent
 
