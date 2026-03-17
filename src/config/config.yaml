@@ -2,3 +2,8 @@ MIC_TYPE: "computer_mic"
 GEMINI_MODEL: "gemini-2.0-flash-live-001"
 INSTRUCTIONS_FILE: "src/config/instructions.txt"
 VOICE_NAME: "Leda"
+
+# Engagement detection thresholds
+ENGAGEMENT_SILENCE_THRESHOLD_SEC: 10.0
+ENGAGEMENT_ABSENCE_THRESHOLD_SEC: 15.0
+ENGAGEMENT_AUDIO_RMS_THRESHOLD: 500.0
