@@ -35,8 +35,29 @@ def get_client():
     return genai.Client(api_key=API_KEY, http_options={"api_version": "v1alpha"})
 
 
+def get_config(system_instruction=None, **kwargs):
+    """Create a LiveConnectConfig for audio+transcription mode.
+
+    Native-audio models require AUDIO response modality. We use
+    output_audio_transcription to get parseable text alongside audio.
+    """
+    config_args = {
+        "response_modalities": ["AUDIO"],
+        "speech_config": types.SpeechConfig(
+            voice_config=types.VoiceConfig(
+                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Aoede")
+            )
+        ),
+        "output_audio_transcription": types.AudioTranscriptionConfig(),
+    }
+    if system_instruction:
+        config_args["system_instruction"] = system_instruction
+    config_args.update(kwargs)
+    return types.LiveConnectConfig(**config_args)
+
+
 async def send_and_receive(session, text: str, label: str = "User"):
-    """Send a text message and collect the full response."""
+    """Send a text message and collect the transcribed response."""
     print(f"\n{label}: {text}")
 
     await session.send_client_content(
@@ -48,10 +69,16 @@ async def send_and_receive(session, text: str, label: str = "User"):
     )
 
     response_parts = []
+    msg_count = 0
     async for msg in session.receive():
-        if msg.text:
-            response_parts.append(msg.text)
+        msg_count += 1
+        if msg.server_content and msg.server_content.model_turn:
+            for part in msg.server_content.model_turn.parts:
+                if part.text:
+                    response_parts.append(part.text)
         if msg.server_content and msg.server_content.turn_complete:
+            break
+        if msg_count > 100:
             break
 
     full_response = "".join(response_parts)
@@ -73,10 +100,16 @@ async def inject_context(session, text: str, turn_complete: bool = True):
 
     if turn_complete:
         response_parts = []
+        msg_count = 0
         async for msg in session.receive():
-            if msg.text:
-                response_parts.append(msg.text)
+            msg_count += 1
+            if msg.server_content and msg.server_content.model_turn:
+                for part in msg.server_content.model_turn.parts:
+                    if part.text:
+                        response_parts.append(part.text)
             if msg.server_content and msg.server_content.turn_complete:
+                break
+            if msg_count > 100:
                 break
         full_response = "".join(response_parts)
         print(f"Model: {full_response}")
@@ -92,18 +125,16 @@ async def scenario_0():
     print("=" * 60)
 
     client = get_client()
-    config = types.LiveConnectConfig(
-        response_modalities=["TEXT"],
-    )
+    config = get_config()
 
     async with client.aio.live.connect(model=MODEL, config=config) as session:
-        response = await send_and_receive(session, "Hello, can you hear me?")
+        response = await send_and_receive(session, "Hello, can you hear me? Reply in one sentence.")
 
     print(f"\nRESULT: {'PASS' if response else 'FAIL'}")
 
 
 async def scenario_1():
-    """Persona fidelity -- does the troll work in text mode?"""
+    """Persona fidelity -- does the troll work with the new model?"""
     print("=" * 60)
     print("SCENARIO 1: Persona Fidelity")
     print("=" * 60)
@@ -113,10 +144,7 @@ async def scenario_1():
         return
 
     client = get_client()
-    config = types.LiveConnectConfig(
-        response_modalities=["TEXT"],
-        system_instruction=SYSTEM_INSTRUCTION,
-    )
+    config = get_config(system_instruction=SYSTEM_INSTRUCTION)
 
     async with client.aio.live.connect(model=MODEL, config=config) as session:
         await send_and_receive(
@@ -148,10 +176,7 @@ async def scenario_2():
     client = get_client()
 
     # Setup A: no proactivity
-    config_a = types.LiveConnectConfig(
-        response_modalities=["TEXT"],
-        system_instruction=SYSTEM_INSTRUCTION,
-    )
+    config_a = get_config(system_instruction=SYSTEM_INSTRUCTION)
 
     async with client.aio.live.connect(model=MODEL, config=config_a) as session:
         await send_and_receive(session, "Hey, what's up?")
@@ -171,9 +196,8 @@ async def scenario_2():
     print("SCENARIO 2B: Silence Response (proactivity ON)")
     print("=" * 60)
 
-    # Setup B: with proactivity
-    config_b = types.LiveConnectConfig(
-        response_modalities=["TEXT"],
+    # Setup B: with proactivity + affective dialog
+    config_b = get_config(
         system_instruction=SYSTEM_INSTRUCTION,
         enable_affective_dialog=True,
     )
@@ -215,10 +239,7 @@ async def scenario_3():
         return
 
     client = get_client()
-    config = types.LiveConnectConfig(
-        response_modalities=["TEXT"],
-        system_instruction=SYSTEM_INSTRUCTION,
-    )
+    config = get_config(system_instruction=SYSTEM_INSTRUCTION)
 
     async with client.aio.live.connect(model=MODEL, config=config) as session:
         await send_and_receive(
