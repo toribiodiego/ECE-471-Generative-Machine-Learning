@@ -331,7 +331,7 @@ This fail-fast approach ensures partial failures don't leave the system in incon
 **config.yaml** (development settings):
 ```yaml
 MIC_TYPE: dynamic_mic          # or computer_mic
-GEMINI_MODEL: gemini-live-2.5-flash-preview
+GEMINI_MODEL: gemini-2.5-flash-native-audio-latest
 VOICE_NAME: Leda               # Leda, Puck, Charon, Kore
 VIDEO_CAPTURE_INTERVAL: 0.5    # seconds between frames
 WEB_UI_TITLE: Gemini Audio/Video Demo

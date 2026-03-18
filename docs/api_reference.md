@@ -83,7 +83,7 @@ from src.utils.config_loader import load_config
 
 # Load with default paths
 config = load_config()
-print(config["GEMINI_MODEL"])  # gemini-live-2.5-flash-preview
+print(config["GEMINI_MODEL"])  # gemini-2.5-flash-native-audio-latest
 print(config["INPUT_SAMPLE_RATE"])  # 16000
 
 # Load with custom paths
@@ -611,7 +611,7 @@ The application supports two microphone types, configured via `MIC_TYPE` in conf
 
 **config.yaml**:
 - `MIC_TYPE`: "dynamic_mic" or "computer_mic"
-- `GEMINI_MODEL`: Model name (e.g., "gemini-live-2.5-flash-preview")
+- `GEMINI_MODEL`: Model name (e.g., "gemini-2.5-flash-native-audio-latest")
 - `VOICE_NAME`: Voice for speech synthesis ("Leda", "Aoede", "Puck", "Charon", "Kore")
 - `VIDEO_CAPTURE_INTERVAL`: Seconds between video frames (e.g., 0.5)
 - `WEB_UI_TITLE`: Title for Gradio interface

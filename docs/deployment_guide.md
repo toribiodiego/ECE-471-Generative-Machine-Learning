@@ -135,7 +135,7 @@ GEMINI_API_KEY=your_gemini_api_key_here
 MIC_TYPE: computer_mic
 
 # Gemini model to use
-GEMINI_MODEL: gemini-live-2.5-flash-preview
+GEMINI_MODEL: gemini-2.5-flash-native-audio-latest
 
 # Voice for speech synthesis
 # Options: Leda, Aoede, Puck, Charon, Kore
@@ -507,7 +507,7 @@ Current typical latency: 500-1200ms
 
 3. **Use faster Gemini model** (when available):
    ```yaml
-   GEMINI_MODEL: gemini-live-2.5-flash-preview  # Currently fastest
+   GEMINI_MODEL: gemini-2.5-flash-native-audio-latest  # Currently fastest
    ```
 
 4. **Optimize network route**:

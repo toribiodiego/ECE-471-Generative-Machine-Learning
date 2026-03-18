@@ -1,4 +1,4 @@
 MIC_TYPE: "computer_mic"
-GEMINI_MODEL: "gemini-live-2.5-flash-preview"
+GEMINI_MODEL: "gemini-2.5-flash-native-audio-latest"
 INSTRUCTIONS_FILE: "src/config/instructions.txt"
 VOICE_NAME: "Leda"
