@@ -2,7 +2,7 @@
 
 ## Agnus -- Real-Time Multimodal Agent
 
-Agnus is an interactive installation where users engage with an AI agent through speech and a live video stream. The system streams webcam frames and microphone audio to Gemini 2.0, plays back synthesized speech in real time, and uses prompt-driven personality control to create a sarcastic, confrontational character. Built with a modular async architecture, YAML-configurable behavior, and a Gradio web interface -- all on commodity hardware.
+Agnus is an interactive installation where users engage with an AI agent through speech and a live video stream. The system streams webcam frames and microphone audio to the Gemini Live API, plays back synthesized speech in real time, and uses prompt-driven personality control to create a sarcastic, confrontational character. Built with a modular async architecture, YAML-configurable behavior, and a Gradio web interface -- all on commodity hardware.
 
 93 tests | 99% coverage | 4 concurrent async tasks | sub-second response latency
 
