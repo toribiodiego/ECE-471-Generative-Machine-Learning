@@ -68,20 +68,33 @@ async def send_and_receive(session, text: str, label: str = "User"):
         turn_complete=True
     )
 
-    response_parts = []
+    thinking_parts = []
+    transcription_parts = []
     msg_count = 0
     async for msg in session.receive():
         msg_count += 1
-        if msg.server_content and msg.server_content.model_turn:
-            for part in msg.server_content.model_turn.parts:
-                if part.text:
-                    response_parts.append(part.text)
-        if msg.server_content and msg.server_content.turn_complete:
-            break
-        if msg_count > 100:
+        sc = msg.server_content
+        if sc:
+            # Thinking text (model's reasoning, not spoken)
+            if sc.model_turn:
+                for part in sc.model_turn.parts:
+                    if part.text:
+                        thinking_parts.append(part.text)
+            # Spoken transcription (what the model actually said)
+            if hasattr(sc, 'output_transcription') and sc.output_transcription:
+                if hasattr(sc.output_transcription, 'text') and sc.output_transcription.text:
+                    transcription_parts.append(sc.output_transcription.text)
+            if sc.turn_complete:
+                break
+        if msg_count > 200:
             break
 
-    full_response = "".join(response_parts)
+    # Prefer transcription (what was spoken), fall back to thinking
+    full_response = "".join(transcription_parts) if transcription_parts else "".join(thinking_parts)
+    if transcription_parts:
+        print(f"Model (spoken): {full_response}")
+    else:
+        print(f"Model (thinking only): {full_response}")
     print(f"Model: {full_response}")
     return full_response
 
@@ -99,19 +112,20 @@ async def inject_context(session, text: str, turn_complete: bool = True):
     )
 
     if turn_complete:
-        response_parts = []
+        transcription_parts = []
         msg_count = 0
         async for msg in session.receive():
             msg_count += 1
-            if msg.server_content and msg.server_content.model_turn:
-                for part in msg.server_content.model_turn.parts:
-                    if part.text:
-                        response_parts.append(part.text)
-            if msg.server_content and msg.server_content.turn_complete:
+            sc = msg.server_content
+            if sc:
+                if hasattr(sc, 'output_transcription') and sc.output_transcription:
+                    if hasattr(sc.output_transcription, 'text') and sc.output_transcription.text:
+                        transcription_parts.append(sc.output_transcription.text)
+                if sc.turn_complete:
+                    break
+            if msg_count > 200:
                 break
-            if msg_count > 100:
-                break
-        full_response = "".join(response_parts)
+        full_response = "".join(transcription_parts)
         print(f"Model: {full_response}")
         return full_response
 
